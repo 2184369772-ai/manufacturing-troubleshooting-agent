@@ -1,60 +1,60 @@
 {% extends "base.html" %}
-{% block title %}New Session | Manufacturing Troubleshooting Agent{% endblock %}
+{% block title %}新建会话 | 制造现场问题助手 AI Agent{% endblock %}
 {% block content %}
 <section class="grid gap-6 lg:grid-cols-[1.2fr,0.8fr]">
     <article class="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-stone-200">
-        <p class="text-sm font-medium text-emerald-700">V1 workflow</p>
-        <h2 class="mt-1 text-3xl font-semibold">Problem input → follow-up → retrieval → risk judgment</h2>
+        <p class="text-sm font-medium text-emerald-700">V1 流程 · AI Agent</p>
+        <h2 class="mt-1 text-3xl font-semibold">问题输入 → 补充追问 → Knowledge Retrieval → 风险判断</h2>
         <p class="mt-3 max-w-3xl text-sm text-stone-600">
-            This demo intentionally avoids direct quantitative machine-setting advice. If information is incomplete, knowledge coverage is weak, or risk is high, the agent escalates to human review.
+            这个公开 Demo 不直接输出未经审核的高风险动作或定量调机建议。若信息不足、知识覆盖较弱或风险较高，系统会进入 <span class="font-medium">Human-in-the-loop</span> 人工审核流程。
         </p>
 
         <form method="post" action="/sessions/new" class="mt-8 grid gap-4 md:grid-cols-2">
             <label class="space-y-2 md:col-span-2">
-                <span class="text-sm font-medium">Problem input</span>
-                <textarea name="question_text" rows="5" placeholder="Describe the issue, symptoms, and what the operator sees..." class="w-full rounded-2xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm"></textarea>
+                <span class="text-sm font-medium">问题输入</span>
+                <textarea name="question_text" rows="5" placeholder="请描述现场现象、异常表现，以及操作员当前看到的问题……" class="w-full rounded-2xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm"></textarea>
             </label>
             <label class="space-y-2">
-                <span class="text-sm font-medium">Line / Asset</span>
-                <input type="text" name="line_name" placeholder="Example: Pack Line A" class="w-full rounded-2xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm">
+                <span class="text-sm font-medium">产线 / 设备</span>
+                <input type="text" name="line_name" placeholder="例如：包装线 A / 涂装单元 2" class="w-full rounded-2xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm">
             </label>
             <label class="space-y-2">
-                <span class="text-sm font-medium">Impact Scope</span>
-                <input type="text" name="impact_scope" placeholder="Example: intermittent stop, quality risk" class="w-full rounded-2xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm">
+                <span class="text-sm font-medium">影响范围</span>
+                <input type="text" name="impact_scope" placeholder="例如：间歇停线、质量风险、待确认" class="w-full rounded-2xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm">
             </label>
             <label class="space-y-2">
-                <span class="text-sm font-medium">Urgency</span>
+                <span class="text-sm font-medium">紧急程度</span>
                 <select name="urgency" class="w-full rounded-2xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm">
-                    <option>Low</option>
-                    <option selected>Medium</option>
-                    <option>High</option>
+                    <option value="Low">低</option>
+                    <option value="Medium" selected>中</option>
+                    <option value="High">高</option>
                 </select>
             </label>
             <div class="flex items-end">
-                <button class="rounded-2xl bg-emerald-700 px-5 py-3 text-sm font-medium text-white hover:bg-emerald-800">Start troubleshooting</button>
+                <button class="rounded-2xl bg-emerald-700 px-5 py-3 text-sm font-medium text-white hover:bg-emerald-800">开始诊断</button>
             </div>
         </form>
     </article>
 
     <aside class="space-y-6">
         <article class="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-stone-200">
-            <h3 class="text-lg font-semibold">Safety boundary</h3>
+            <h3 class="text-lg font-semibold">安全边界 <span class="text-sm font-medium text-stone-500">Safety Boundary</span></h3>
             <ul class="mt-4 list-disc space-y-2 pl-5 text-sm text-stone-600">
-                <li>No direct unreviewed high-risk actions</li>
-                <li>No quantitative machine parameter advice</li>
-                <li>High risk, weak coverage, or missing data triggers escalation</li>
+                <li>不直接输出未经审核的高风险操作建议</li>
+                <li>不直接给出定量调机参数</li>
+                <li>高风险、覆盖不足或信息缺失时进入人工升级</li>
             </ul>
         </article>
         <article class="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-stone-200">
-            <h3 class="text-lg font-semibold">Recent Sessions</h3>
+            <h3 class="text-lg font-semibold">最近会话 <span class="text-sm font-medium text-stone-500">Recent Sessions</span></h3>
             <div class="mt-4 space-y-3">
                 {% for item in sessions %}
                 <a href="/sessions/{{ item.id }}" class="block rounded-2xl bg-stone-50 p-4 hover:bg-stone-100">
                     <p class="font-medium">{{ item.title }}</p>
-                    <p class="mt-1 text-xs text-stone-500">{{ item.status }} · {{ item.urgency or "Medium" }}</p>
+                    <p class="mt-1 text-xs text-stone-500">{{ status_labels.get(item.status, item.status) }} · {{ urgency_labels.get(item.urgency or "Medium", item.urgency or "Medium") }}</p>
                 </a>
                 {% else %}
-                <p class="text-sm text-stone-500">No sessions yet.</p>
+                <p class="text-sm text-stone-500">还没有会话记录。</p>
                 {% endfor %}
             </div>
         </article>
@@ -64,10 +64,10 @@
 <section class="mt-8 rounded-3xl bg-white p-6 shadow-sm ring-1 ring-stone-200">
     <div class="flex items-center justify-between">
         <div>
-            <p class="text-sm font-medium text-emerald-700">Test cases</p>
-            <h3 class="mt-1 text-2xl font-semibold">Synthetic good cases and bad cases</h3>
+            <p class="text-sm font-medium text-emerald-700">测试样例 · Evaluation</p>
+            <h3 class="mt-1 text-2xl font-semibold">Synthetic Data 的 Good Case / Bad Case</h3>
         </div>
-        <a href="/knowledge" class="text-sm font-medium text-emerald-700">View knowledge base</a>
+        <a href="/knowledge" class="text-sm font-medium text-emerald-700">查看知识库</a>
     </div>
     <div class="mt-6 grid gap-4 md:grid-cols-2">
         {% for item in test_cases %}
