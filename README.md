@@ -1,5 +1,7 @@
 # manufacturing-troubleshooting-agent
 
+Public reimplementation of a manufacturing troubleshooting AI Agent using synthetic data.
+
 > This repository is a public reimplementation using synthetic data.
 > It contains no proprietary code, internal data, confidential materials, or company-specific assets.
 
@@ -22,12 +24,12 @@
 ## Core workflow
 
 Problem input  
-→ follow-up when information is insufficient  
-→ knowledge retrieval  
-→ risk / rule judgment  
-→ structured troubleshooting result  
-→ human escalation when required  
-→ retained case record
+-> follow-up when information is insufficient  
+-> knowledge retrieval  
+-> risk / rule judgment  
+-> structured troubleshooting result  
+-> human escalation when required  
+-> retained case record
 
 ## Safety boundary
 
