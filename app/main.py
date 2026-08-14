@@ -26,6 +26,26 @@ templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 app = FastAPI(title="Manufacturing Troubleshooting Agent Demo")
 app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
 
+STATUS_LABELS = {
+    "collecting": "追问中",
+    "resolved": "已完成",
+    "escalated": "待人工升级",
+}
+URGENCY_LABELS = {
+    "Low": "低",
+    "Medium": "中",
+    "High": "高",
+}
+RISK_LEVEL_LABELS = {
+    "Low": "低",
+    "Medium": "中",
+    "High": "高",
+}
+ROLE_LABELS = {
+    "agent": "AI Agent",
+    "operator": "用户输入",
+}
+
 
 @app.on_event("startup")
 def startup() -> None:
@@ -37,6 +57,10 @@ def render(request: Request, template_name: str, context: dict) -> HTMLResponse:
         "request": request,
         "sessions": list_sessions()[:6],
         "case_records": list_case_records()[:6],
+        "status_labels": STATUS_LABELS,
+        "urgency_labels": URGENCY_LABELS,
+        "risk_level_labels": RISK_LEVEL_LABELS,
+        "role_labels": ROLE_LABELS,
     }
     base.update(context)
     return templates.TemplateResponse(template_name, base)
@@ -54,7 +78,7 @@ def session_new(
     impact_scope: str = Form(""),
     urgency: str = Form("Medium"),
 ) -> RedirectResponse:
-    title = question_text.strip()[:100] or "Synthetic troubleshooting session"
+    title = question_text.strip()[:100] or "Synthetic Data 诊断会话"
     session_id = create_session(title=title, question_text=question_text.strip(), line_name=line_name.strip(), impact_scope=impact_scope.strip(), urgency=urgency.strip())
     session = get_session(session_id)
     follow_up = next_follow_up(session["question_text"], session["answers_json"], session["asked_questions_json"])
@@ -78,7 +102,7 @@ def finalize(request_session_id: int) -> None:
     )
     status = "escalated" if result["human_escalation"]["required"] else "resolved"
     finalize_session(request_session_id, status, result)
-    append_message(request_session_id, "agent", "Structured agent result is ready. Review the causes, checks, risk level, and escalation section below.")
+    append_message(request_session_id, "agent", "结构化结果已生成。请查看下方的可能原因、建议检查项、风险等级与人工升级说明。")
     create_case_record(
         session_id=request_session_id,
         title=session["title"],
@@ -94,7 +118,7 @@ def finalize(request_session_id: int) -> None:
 def session_detail(request: Request, session_id: int) -> HTMLResponse:
     session = get_session(session_id)
     if not session:
-        raise HTTPException(status_code=404, detail="Session not found")
+        raise HTTPException(status_code=404, detail="未找到对应会话")
     return render(
         request,
         "session_detail.html",
@@ -110,7 +134,7 @@ def session_detail(request: Request, session_id: int) -> HTMLResponse:
 def session_reply(session_id: int, answer_text: str = Form(...)) -> RedirectResponse:
     session = get_session(session_id)
     if not session:
-        raise HTTPException(status_code=404, detail="Session not found")
+        raise HTTPException(status_code=404, detail="未找到对应会话")
     if session["status"] not in {"collecting"}:
         return RedirectResponse(url=f"/sessions/{session_id}", status_code=303)
 

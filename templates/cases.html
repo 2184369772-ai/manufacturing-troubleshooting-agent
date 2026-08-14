@@ -1,10 +1,10 @@
 {% extends "base.html" %}
-{% block title %}Case Records | Manufacturing Troubleshooting Agent{% endblock %}
+{% block title %}案例记录 | 制造现场问题助手 AI Agent{% endblock %}
 {% block content %}
 <section class="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-stone-200">
-    <p class="text-sm font-medium text-emerald-700">Case records</p>
-    <h2 class="mt-1 text-2xl font-semibold">Simple retained troubleshooting outcomes</h2>
-    <p class="mt-2 text-sm text-stone-600">This V1 keeps a lightweight record of completed sessions to demonstrate traceability and future knowledge retention.</p>
+    <p class="text-sm font-medium text-emerald-700">案例记录 · Case Records</p>
+    <h2 class="mt-1 text-2xl font-semibold">保留已完成诊断结果，演示可追溯与案例沉淀</h2>
+    <p class="mt-2 text-sm text-stone-600">当前 V1 以轻量方式保存处理结果，便于展示后续复盘、Knowledge Retrieval 优化与案例沉淀。</p>
 
     <div class="mt-6 space-y-4">
         {% for case_item in all_cases %}
@@ -12,18 +12,18 @@
             <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                 <div>
                     <p class="font-medium">{{ case_item.title }}</p>
-                    <p class="mt-1 text-xs text-stone-500">Case #{{ case_item.id }} - Session {{ case_item.session_id or "n/a" }}</p>
+                    <p class="mt-1 text-xs text-stone-500">案例 #{{ case_item.id }} · 会话 {{ case_item.session_id or "未关联" }}</p>
                 </div>
                 <div class="flex gap-2">
-                    <span class="rounded-full bg-slate-200 px-3 py-1 text-xs font-medium text-slate-700">{{ case_item.status }}</span>
-                    <span class="rounded-full {% if case_item.risk_level == 'High' %}bg-rose-100 text-rose-700{% elif case_item.risk_level == 'Medium' %}bg-amber-100 text-amber-700{% else %}bg-emerald-100 text-emerald-700{% endif %} px-3 py-1 text-xs font-medium">Risk {{ case_item.risk_level }}</span>
+                    <span class="rounded-full bg-slate-200 px-3 py-1 text-xs font-medium text-slate-700">{{ status_labels.get(case_item.status, case_item.status) }}</span>
+                    <span class="rounded-full {% if case_item.risk_level == 'High' %}bg-rose-100 text-rose-700{% elif case_item.risk_level == 'Medium' %}bg-amber-100 text-amber-700{% else %}bg-emerald-100 text-emerald-700{% endif %} px-3 py-1 text-xs font-medium">风险等级 {{ risk_level_labels.get(case_item.risk_level, case_item.risk_level) }}</span>
                 </div>
             </div>
             <p class="mt-3 text-sm text-stone-700">{{ case_item.summary_text }}</p>
-            <p class="mt-3 text-xs text-stone-500">Human escalation: {{ "Yes" if case_item.escalation_required else "No" }}</p>
+            <p class="mt-3 text-xs text-stone-500">人工升级：{{ "需要" if case_item.escalation_required else "无需" }}</p>
         </article>
         {% else %}
-        <p class="text-sm text-stone-500">No completed cases yet.</p>
+        <p class="text-sm text-stone-500">还没有已完成的案例。</p>
         {% endfor %}
     </div>
 </section>
