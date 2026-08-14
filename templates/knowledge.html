@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Knowledge Base | Manufacturing Troubleshooting Agent{% endblock %}
+{% block content %}
+<section class="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-stone-200">
+    <p class="text-sm font-medium text-emerald-700">Synthetic knowledge base</p>
+    <h2 class="mt-1 text-2xl font-semibold">Public demo sources only</h2>
+    <p class="mt-2 max-w-3xl text-sm text-stone-600">
+        Every source below is fictional and exists only to demonstrate retrieval, traceability, and safe troubleshooting boundaries in a public portfolio demo.
+    </p>
+    <div class="mt-6 grid gap-4 md:grid-cols-2">
+        {% for item in knowledge_items %}
+        <article class="rounded-2xl bg-stone-50 p-5">
+            <div class="flex items-center justify-between gap-3">
+                <p class="font-medium">{{ item.source_id }}</p>
+                <span class="rounded-full bg-slate-200 px-3 py-1 text-xs font-medium text-slate-700">{{ item.domain }}</span>
+            </div>
+            <h3 class="mt-3 text-lg font-semibold">{{ item.title }}</h3>
+            <p class="mt-2 text-xs uppercase tracking-[0.2em] text-stone-500">{{ item.source_type }}</p>
+            <p class="mt-3 text-sm font-medium">Possible causes</p>
+            <ul class="mt-2 list-disc space-y-1 pl-5 text-sm text-stone-700">
+                {% for cause in item.possible_causes_json %}
+                <li>{{ cause }}</li>
+                {% endfor %}
+            </ul>
+            <p class="mt-3 text-sm font-medium">Risk warning</p>
+            <p class="mt-1 text-sm text-stone-700">{{ item.risk_warning }}</p>
+        </article>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Case Records | Manufacturing Troubleshooting Agent{% endblock %}
+{% block content %}
+<section class="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-stone-200">
+    <p class="text-sm font-medium text-emerald-700">Case records</p>
+    <h2 class="mt-1 text-2xl font-semibold">Simple retained troubleshooting outcomes</h2>
+    <p class="mt-2 text-sm text-stone-600">This V1 keeps a lightweight record of completed sessions to demonstrate traceability and future knowledge retention.</p>
+
+    <div class="mt-6 space-y-4">
+        {% for case_item in all_cases %}
+        <article class="rounded-2xl bg-stone-50 p-5">
+            <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                <div>
+                    <p class="font-medium">{{ case_item.title }}</p>
+                    <p class="mt-1 text-xs text-stone-500">Case #{{ case_item.id }} - Session {{ case_item.session_id or "n/a" }}</p>
+                </div>
+                <div class="flex gap-2">
+                    <span class="rounded-full bg-slate-200 px-3 py-1 text-xs font-medium text-slate-700">{{ case_item.status }}</span>
+                    <span class="rounded-full {% if case_item.risk_level == 'High' %}bg-rose-100 text-rose-700{% elif case_item.risk_level == 'Medium' %}bg-amber-100 text-amber-700{% else %}bg-emerald-100 text-emerald-700{% endif %} px-3 py-1 text-xs font-medium">Risk {{ case_item.risk_level }}</span>
+                </div>
+            </div>
+            <p class="mt-3 text-sm text-stone-700">{{ case_item.summary_text }}</p>
+            <p class="mt-3 text-xs text-stone-500">Human escalation: {{ "Yes" if case_item.escalation_required else "No" }}</p>
+        </article>
+        {% else %}
+        <p class="text-sm text-stone-500">No completed cases yet.</p>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

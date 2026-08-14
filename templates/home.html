@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}New Session | Manufacturing Troubleshooting Agent{% endblock %}
+{% block content %}
+<section class="grid gap-6 lg:grid-cols-[1.2fr,0.8fr]">
+    <article class="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-stone-200">
+        <p class="text-sm font-medium text-emerald-700">V1 workflow</p>
+        <h2 class="mt-1 text-3xl font-semibold">Problem input → follow-up → retrieval → risk judgment</h2>
+        <p class="mt-3 max-w-3xl text-sm text-stone-600">
+            This demo intentionally avoids direct quantitative machine-setting advice. If information is incomplete, knowledge coverage is weak, or risk is high, the agent escalates to human review.
+        </p>
+
+        <form method="post" action="/sessions/new" class="mt-8 grid gap-4 md:grid-cols-2">
+            <label class="space-y-2 md:col-span-2">
+                <span class="text-sm font-medium">Problem input</span>
+                <textarea name="question_text" rows="5" placeholder="Describe the issue, symptoms, and what the operator sees..." class="w-full rounded-2xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm"></textarea>
+            </label>
+            <label class="space-y-2">
+                <span class="text-sm font-medium">Line / Asset</span>
+                <input type="text" name="line_name" placeholder="Example: Pack Line A" class="w-full rounded-2xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm">
+            </label>
+            <label class="space-y-2">
+                <span class="text-sm font-medium">Impact Scope</span>
+                <input type="text" name="impact_scope" placeholder="Example: intermittent stop, quality risk" class="w-full rounded-2xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm">
+            </label>
+            <label class="space-y-2">
+                <span class="text-sm font-medium">Urgency</span>
+                <select name="urgency" class="w-full rounded-2xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm">
+                    <option>Low</option>
+                    <option selected>Medium</option>
+                    <option>High</option>
+                </select>
+            </label>
+            <div class="flex items-end">
+                <button class="rounded-2xl bg-emerald-700 px-5 py-3 text-sm font-medium text-white hover:bg-emerald-800">Start troubleshooting</button>
+            </div>
+        </form>
+    </article>
+
+    <aside class="space-y-6">
+        <article class="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-stone-200">
+            <h3 class="text-lg font-semibold">Safety boundary</h3>
+            <ul class="mt-4 list-disc space-y-2 pl-5 text-sm text-stone-600">
+                <li>No direct unreviewed high-risk actions</li>
+                <li>No quantitative machine parameter advice</li>
+                <li>High risk, weak coverage, or missing data triggers escalation</li>
+            </ul>
+        </article>
+        <article class="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-stone-200">
+            <h3 class="text-lg font-semibold">Recent Sessions</h3>
+            <div class="mt-4 space-y-3">
+                {% for item in sessions %}
+                <a href="/sessions/{{ item.id }}" class="block rounded-2xl bg-stone-50 p-4 hover:bg-stone-100">
+                    <p class="font-medium">{{ item.title }}</p>
+                    <p class="mt-1 text-xs text-stone-500">{{ item.status }} · {{ item.urgency or "Medium" }}</p>
+                </a>
+                {% else %}
+                <p class="text-sm text-stone-500">No sessions yet.</p>
+                {% endfor %}
+            </div>
+        </article>
+    </aside>
+</section>
+
+<section class="mt-8 rounded-3xl bg-white p-6 shadow-sm ring-1 ring-stone-200">
+    <div class="flex items-center justify-between">
+        <div>
+            <p class="text-sm font-medium text-emerald-700">Test cases</p>
+            <h3 class="mt-1 text-2xl font-semibold">Synthetic good cases and bad cases</h3>
+        </div>
+        <a href="/knowledge" class="text-sm font-medium text-emerald-700">View knowledge base</a>
+    </div>
+    <div class="mt-6 grid gap-4 md:grid-cols-2">
+        {% for item in test_cases %}
+        <div class="rounded-2xl bg-stone-50 p-5">
+            <div class="flex items-center justify-between">
+                <p class="font-medium">{{ item.title }}</p>
+                <span class="rounded-full {% if item.kind == 'Bad Case' %}bg-rose-100 text-rose-700{% else %}bg-emerald-100 text-emerald-700{% endif %} px-3 py-1 text-xs font-medium">{{ item.kind }}</span>
+            </div>
+            <p class="mt-3 text-sm text-stone-600">{{ item.question_text }}</p>
+            <p class="mt-3 text-xs text-stone-500">{{ item.notes }}</p>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

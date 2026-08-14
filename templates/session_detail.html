@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block title %}Session {{ session.id }} | Manufacturing Troubleshooting Agent{% endblock %}
+{% block content %}
+<section class="grid gap-6 lg:grid-cols-[1.05fr,0.95fr]">
+    <article class="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-stone-200">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-emerald-700">Troubleshooting Session</p>
+                <h2 class="mt-1 text-2xl font-semibold">{{ session.title }}</h2>
+            </div>
+            <span class="rounded-full {% if session.status == 'resolved' %}bg-emerald-100 text-emerald-700{% elif session.status == 'escalated' %}bg-amber-100 text-amber-700{% else %}bg-slate-100 text-slate-700{% endif %} px-4 py-2 text-xs font-medium">{{ session.status }}</span>
+        </div>
+
+        <div class="mt-6 space-y-4">
+            {% for message in messages %}
+            <div class="rounded-2xl {% if message.role == 'agent' %}bg-slate-50 border border-slate-200{% else %}bg-emerald-50 border border-emerald-200{% endif %} p-4">
+                <p class="text-xs uppercase tracking-[0.2em] text-stone-500">{{ message.role }}</p>
+                <p class="mt-2 text-sm text-stone-700">{{ message.message_text }}</p>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% if session.status == 'collecting' %}
+        <form method="post" action="/sessions/{{ session.id }}/reply" class="mt-6">
+            <label class="block space-y-2">
+                <span class="text-sm font-medium">Answer the current follow-up</span>
+                <textarea name="answer_text" rows="4" class="w-full rounded-2xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm" placeholder="Add the missing context..."></textarea>
+            </label>
+            <button class="mt-4 rounded-2xl bg-emerald-700 px-5 py-3 text-sm font-medium text-white hover:bg-emerald-800">Submit answer</button>
+        </form>
+        {% endif %}
+    </article>
+
+    <aside class="space-y-6">
+        <article class="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-stone-200">
+            <h3 class="text-lg font-semibold">Context</h3>
+            <dl class="mt-4 space-y-3 text-sm">
+                <div class="flex items-center justify-between"><dt class="text-stone-500">Line / Asset</dt><dd>{{ session.line_name or "Not provided" }}</dd></div>
+                <div class="flex items-center justify-between"><dt class="text-stone-500">Impact</dt><dd>{{ session.impact_scope or "Not provided" }}</dd></div>
+                <div class="flex items-center justify-between"><dt class="text-stone-500">Urgency</dt><dd>{{ session.urgency or "Medium" }}</dd></div>
+            </dl>
+        </article>
+
+        {% if session.result_json %}
+        <article class="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-stone-200">
+            <div class="flex items-center justify-between">
+                <h3 class="text-lg font-semibold">Agent Result</h3>
+                <span class="rounded-full {% if session.result_json.risk_level == 'High' %}bg-rose-100 text-rose-700{% elif session.result_json.risk_level == 'Medium' %}bg-amber-100 text-amber-700{% else %}bg-emerald-100 text-emerald-700{% endif %} px-3 py-1 text-xs font-medium">Risk {{ session.result_json.risk_level }}</span>
+            </div>
+
+            <div class="mt-5">
+                <p class="text-sm font-medium">Possible Causes</p>
+                <ul class="mt-2 list-disc space-y-2 pl-5 text-sm text-stone-700">
+                    {% for item in session.result_json.possible_causes %}
+                    <li>{{ item }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div class="mt-5">
+                <p class="text-sm font-medium">Suggested Checks</p>
+                <ul class="mt-2 list-disc space-y-2 pl-5 text-sm text-stone-700">
+                    {% for item in session.result_json.check_items %}
+                    <li>{{ item }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div class="mt-5 rounded-2xl {% if session.result_json.human_escalation.required %}bg-amber-50 border border-amber-200{% else %}bg-emerald-50 border border-emerald-200{% endif %} p-4">
+                <p class="text-sm font-medium">Risk Warning</p>
+                <p class="mt-2 text-sm">{{ session.result_json.risk_warning }}</p>
+                <p class="mt-3 text-sm font-medium">Human Escalation</p>
+                <p class="mt-1 text-sm">Required: {{ "Yes" if session.result_json.human_escalation.required else "No" }}</p>
+                <p class="mt-1 text-sm">Reason: {{ session.result_json.human_escalation.reason }}</p>
+                <p class="mt-1 text-sm">Next step: {{ session.result_json.human_escalation.next_step }}</p>
+            </div>
+
+            <div class="mt-5">
+                <p class="text-sm font-medium">Knowledge Sources</p>
+                <div class="mt-3 space-y-3">
+                    {% for source in session.result_json.knowledge_sources %}
+                    <div class="rounded-2xl bg-stone-50 p-4 text-sm">
+                        <p class="font-medium">{{ source.source_id }} - {{ source.title }}</p>
+                        <p class="mt-1 text-stone-600">{{ source.source_type }} - {{ source.domain }} - score {{ source.relevance_score }}</p>
+                    </div>
+                    {% else %}
+                    <p class="text-sm text-stone-500">No strong knowledge match found.</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="mt-5">
+                <p class="text-sm font-medium">Confidence Note</p>
+                <p class="mt-2 text-sm text-stone-700">{{ session.result_json.confidence_note }}</p>
+            </div>
+        </article>
+        {% endif %}
+    </aside>
+</section>
+{% endblock %}

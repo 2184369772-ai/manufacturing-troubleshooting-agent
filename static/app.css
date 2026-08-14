@@ -1,0 +1,9 @@
+body {
+    font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+}
+
+textarea,
+input,
+select {
+    outline: none;
+}
