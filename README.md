@@ -7,6 +7,10 @@ Public reimplementation of a manufacturing troubleshooting AI Agent using synthe
 > This repository is a public reimplementation using synthetic data.
 > It contains no proprietary code, internal data, confidential materials, or company-specific assets.
 
+## Demo Preview
+
+![制造现场问题助手 Demo Preview](docs/screenshots/session-agent-result.png)
+
 ## 项目定位 | Project Positioning
 
 这个项目聚焦制造现场问题处理的最小闭环：
